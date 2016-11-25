@@ -1,12 +1,14 @@
 package services;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
+import com.datastax.driver.core.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import model.User;
 import play.inject.ApplicationLifecycle;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Gleb Popov on 25-Nov-16.
@@ -27,7 +29,8 @@ public class BookingService {
         bs = new BoundStatement(insertStatment);
     }
 
-    public ResultSet getUsers() {
-        return session.execute(bs);
+    public List<User> getUsers() {
+        List<Row> rows = session.execute(bs).all();
+        return rows.stream().map(User::new).collect(Collectors.toList());
     }
 }

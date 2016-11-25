@@ -27,12 +27,7 @@ public class ApiController extends Controller {
     }
 
     public Result getCity() {
-        List<Row> rows = service.getUsers().all();
-        List<String> result = new ArrayList<>();
-        for (Row row : rows) {
-            result.add("user_name [" + row.getString("user_name") + "] gender [" + row.getString("gender") + "]");
-        }
-        final JsonNode jsonResponse = Json.toJson(result);
+        final JsonNode jsonResponse = Json.toJson(service.getUsers());
         return ok(jsonResponse);
     }
 
