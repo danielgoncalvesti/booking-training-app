@@ -1,6 +1,7 @@
 package model;
 
 import com.datastax.driver.core.Row;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Pojo for users table
@@ -16,6 +17,16 @@ public class User {
 
     public User() {}
 
+    public User(JsonNode json) {
+        System.out.println(json);
+        userName = json.get("userName").asText();
+        password = json.get("password").asText();
+        gender = json.get("gender").asText();
+        sessionToken = json.get("sessionToken").asText();
+        state = json.get("state").asText();
+        birthYear = json.get("birthYear").asLong();
+
+    }
     public User(Row dataRow) {
         userName = dataRow.getString("user_name");
         password = dataRow.getString("password");
@@ -80,5 +91,17 @@ public class User {
 
     public void setBirthYear(Long birthYear) {
         this.birthYear = birthYear;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", gender='" + gender + '\'' +
+                ", sessionToken='" + sessionToken + '\'' +
+                ", state='" + state + '\'' +
+                ", birthYear=" + birthYear +
+                '}';
     }
 }
