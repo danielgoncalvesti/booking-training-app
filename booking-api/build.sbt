@@ -1,16 +1,14 @@
-name := """play-java-service"""
+name := """booking-api"""
 
 version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-  // javaJdbc, // Play! Java database plugin
-  // javaWs    // Play! Java web services client plugin
+  "com.datastax.cassandra"  % "cassandra-driver-core" % "3.1.0",
+  javaJdbc,
+  cache,
+  javaWs
 )
-
-// Play provides two styles of routers, one expects its actions to be injected, the
-// other, legacy style, accesses its actions statically.
-routesGenerator := InjectedRoutesGenerator
