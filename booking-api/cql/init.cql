@@ -35,3 +35,12 @@ CREATE TABLE Booking.hotels (
 
 INSERT INTO Booking.hotels(hotel_name, city, description, rooms)
                     VALUES('Bolshaya Moskva', 'Odessa', 'Bolshaya Moskva hotel', {'1', '2', '11', '12'});
+
+CREATE TABLE Booking.booking (
+  hotel_name text,
+  room text,
+  city text,
+  guest_name text,
+  startReserveTime timestamp,
+  endReserveTime timestamp
+);
