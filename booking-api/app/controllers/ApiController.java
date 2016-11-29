@@ -1,7 +1,6 @@
 package controllers;
 
 import akka.actor.ActorSystem;
-import com.datastax.driver.core.Row;
 import com.fasterxml.jackson.databind.JsonNode;
 import model.User;
 import play.libs.Json;
@@ -9,41 +8,56 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.concurrent.ExecutionContextExecutor;
-import services.BookingService;
+import scala.concurrent.duration.Duration;
+import services.CityService;
+import services.UserService;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 
 public class ApiController extends Controller {
 
     private final ActorSystem actorSystem;
     private final ExecutionContextExecutor exec;
-    private final BookingService service;
+    private final UserService service;
+    private final CityService cityService;
 
     @Inject
-    public ApiController(ActorSystem actorSystem, ExecutionContextExecutor exec, BookingService service) {
+    public ApiController(ActorSystem actorSystem, ExecutionContextExecutor exec, UserService service,
+                         CityService cityService) {
         this.actorSystem = actorSystem;
         this.exec = exec;
         this.service = service;
+        this.cityService = cityService;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result insertCity() {
+    public CompletionStage<Result> insertUser() {
         JsonNode node = request().body().asJson();
-        User user = new User(node);
-        System.out.println(user);
-        try {
-            service.addUser(user);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return ok(Json.toJson(new Object[] {user, node}));
+        final User user = new User(node);
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(service.addUser(user)))
+                ),
+                exec
+        );
+        return future;
     }
 
-    public Result getCity() {
-        final JsonNode jsonResponse = Json.toJson(service.getUsers());
-        return ok(jsonResponse);
+    public CompletionStage<Result> getUsers() {
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(service.getUsers()))
+                ),
+                exec
+        );
+        return future;
     }
 
     public Result index() {
@@ -51,5 +65,18 @@ public class ApiController extends Controller {
         return ok(jsonResponse);
     }
 
-
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletableFuture<Result> getCity() {
+        JsonNode node = request().body().asJson();
+        String city = node.get("city").asText();
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(cityService.getHotels(city)))
+                ),
+                exec
+        );
+        return future;
+    }
 }

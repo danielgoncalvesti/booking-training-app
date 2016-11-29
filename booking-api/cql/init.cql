@@ -24,3 +24,14 @@ INSERT INTO Booking.users (
   'Alabama',
   1977
 );
+
+CREATE TABLE Booking.hotels (
+  hotel_name text,
+  city text,
+  description text,
+  rooms set<text>,
+  PRIMARY KEY ((city), hotel_name)
+);
+
+INSERT INTO Booking.hotels(hotel_name, city, description, rooms)
+                    VALUES('Bolshaya Moskva', 'Odessa', 'Bolshaya Moskva hotel', {'1', '2', '11', '12'});

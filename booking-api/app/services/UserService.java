@@ -10,10 +10,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Booking service handles API requests.
  * Created by Gleb Popov on 25-Nov-16.
  */
 @Singleton
-public class BookingService {
+public class UserService {
 
     private final ApplicationLifecycle appLifecycle;
     private final Session session;
@@ -21,7 +22,7 @@ public class BookingService {
     private final BoundStatement insertBs;
 
     @Inject
-    public BookingService(ApplicationLifecycle appLifecycle, Session session) {
+    public UserService(ApplicationLifecycle appLifecycle, Session session) {
         this.appLifecycle = appLifecycle;
         this.session = session;
         PreparedStatement selectAll = session.prepare("select * from users;");
@@ -36,22 +37,14 @@ public class BookingService {
         return rows.stream().map(User::new).collect(Collectors.toList());
     }
 
-    public void addUser(User user) {
-        Object[] params = new Object[]{
-                user.getUserName(),
-                user.getPassword(),
-                user.getGender(),
-                user.getSessionToken(),
-                user.getState(),
-                user.getBirthYear()
-        };
-//        insertBs.setString(1, user.getUserName());
-//        insertBs.setString(2, user.getPassword());
-//        insertBs.setString(3, user.getGender());
-//        insertBs.setString(4, user.getSessionToken());
-//        insertBs.setString(5, user.getState());
-//        insertBs.setLong(6, user.getBirthYear());
-        insertBs.bind(params);
+    public User addUser(User user) {
+        insertBs.setString(0, user.getUserName());
+        insertBs.setString(1, user.getPassword());
+        insertBs.setString(2, user.getGender());
+        insertBs.setString(3, user.getSessionToken());
+        insertBs.setString(4, user.getState());
+        insertBs.setLong(5, user.getBirthYear());
         session.execute(insertBs);
+        return user;
     }
 }

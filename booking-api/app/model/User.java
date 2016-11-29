@@ -18,14 +18,12 @@ public class User {
     public User() {}
 
     public User(JsonNode json) {
-        System.out.println(json);
         userName = json.get("userName").asText();
         password = json.get("password").asText();
         gender = json.get("gender").asText();
         sessionToken = json.get("sessionToken").asText();
         state = json.get("state").asText();
         birthYear = json.get("birthYear").asLong();
-
     }
     public User(Row dataRow) {
         userName = dataRow.getString("user_name");

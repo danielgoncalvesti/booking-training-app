@@ -30,7 +30,22 @@
                             dataType: 'json',
                             data: JSON.stringify(d),
                             contentType: "application/json; charset=utf-8",
-                            url  :  "@routes.ApiController.insertCity()",
+                            url  :  "@routes.ApiController.insertUser()",
+                            success: function(data){
+                                console.log(data);
+                            }
+                        });
+                    });
+                    $('#listCity').click(function() {
+                        var d = {
+                            'city' : $('#userName').val()
+                        };
+                        $.ajax({
+                            type :  "POST",
+                            dataType: 'json',
+                            data: JSON.stringify(d),
+                            contentType: "application/json; charset=utf-8",
+                            url  :  "@routes.ApiController.getCity()",
                             success: function(data){
                                 console.log(data);
                             }
