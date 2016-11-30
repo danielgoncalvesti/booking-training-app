@@ -1,0 +1,55 @@
+@*
+* This template takes a single argument, a String containing a
+* message to display.
+*@
+@(message: String)
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+@main("Welcome to Play") {
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('#save').click(function() {
+                    var d = {
+                        'hotelName' : $('#hotelName').val(),
+                        'city' : $('#city').val(),
+                        'description' : $('#description').val(),
+                        'rooms' : $('#rooms').val()
+                    };
+                    $.ajax({
+                        type :  "POST",
+                        dataType: 'json',
+                        data: JSON.stringify(d),
+                        contentType: "application/json; charset=utf-8",
+                        url  :  "@routes.ApiController.saveHotel",
+                        success: function(data){
+                            console.log(data);
+                        }
+                    });
+                });
+            });
+    </script>
+} {
+    <h1>City Operations</h1>
+    <form>
+        <table>
+            <tr>
+                <td><label for="hotelName">Hotel Name</label></td><td><input type="text" id="hotelName"/></td>
+            </tr>
+            <tr>
+                <td><label for="city">City</label></td><td><input type="text" id="city"/></td>
+            </tr>
+            <tr>
+                <td><label for="description">Description</label></td><td><input type="text" id="description"/></td>
+            </tr>
+            <tr>
+                <td><label for="rooms">Rooms</label></td><td><input type="text" id="rooms"/></td>
+            </tr>
+        </table>
+        <input type="button" name="save" id="save" value="Save"/>
+        <input type="button" name="listCity" id="listCity" value="List Hotels"/>
+    </form>
+
+}

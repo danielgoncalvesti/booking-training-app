@@ -16,14 +16,12 @@ import java.util.stream.Collectors;
 @Singleton
 public class UserService {
 
-    private final ApplicationLifecycle appLifecycle;
     private final Session session;
     private final BoundStatement selectAllBs;
     private final BoundStatement insertBs;
 
     @Inject
-    public UserService(ApplicationLifecycle appLifecycle, Session session) {
-        this.appLifecycle = appLifecycle;
+    public UserService(Session session) {
         this.session = session;
         PreparedStatement selectAll = session.prepare("select * from users;");
         selectAllBs = new BoundStatement(selectAll);

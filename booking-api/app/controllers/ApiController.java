@@ -2,6 +2,7 @@ package controllers;
 
 import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
+import model.Hotel;
 import model.User;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -31,6 +32,21 @@ public class ApiController extends Controller {
         this.exec = exec;
         this.service = service;
         this.cityService = cityService;
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> saveHotel() {
+        JsonNode node = request().body().asJson();
+        Hotel hotel = new Hotel(node);
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(cityService.saveHotel(hotel)))
+                ),
+                exec
+        );
+        return future;
     }
 
     @BodyParser.Of(BodyParser.Json.class)

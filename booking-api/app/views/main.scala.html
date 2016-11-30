@@ -4,7 +4,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String)(content: Html)
+@(title: String)(script: Html)(content: Html)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,45 +14,7 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <script src="@routes.Assets.versioned("javascripts/jquery-1.7.2.min.js")" type="text/javascript"></script>
-        <script type="text/javascript">
-                $(document).ready(function() {
-                    $('#save').click(function() {
-                        var d = {
-                            'userName' : $('#userName').val(),
-                            'password' : $('#password').val(),
-                            'gender' : $('#gender').val(),
-                            'sessionToken' : $('#sessionToken').val(),
-                            'state' : $('#state').val(),
-                            'birthYear' : $('#birthYear').val()
-                        };
-                        $.ajax({
-                            type :  "POST",
-                            dataType: 'json',
-                            data: JSON.stringify(d),
-                            contentType: "application/json; charset=utf-8",
-                            url  :  "@routes.ApiController.insertUser()",
-                            success: function(data){
-                                console.log(data);
-                            }
-                        });
-                    });
-                    $('#listCity').click(function() {
-                        var d = {
-                            'city' : $('#userName').val()
-                        };
-                        $.ajax({
-                            type :  "POST",
-                            dataType: 'json',
-                            data: JSON.stringify(d),
-                            contentType: "application/json; charset=utf-8",
-                            url  :  "@routes.ApiController.getCity()",
-                            success: function(data){
-                                console.log(data);
-                            }
-                        });
-                    });
-                })
-        </script>
+        @script
     </head>
     <body>
         @* And here's where we render the `Html` object containing

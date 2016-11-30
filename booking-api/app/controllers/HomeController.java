@@ -20,4 +20,7 @@ public class HomeController extends Controller {
         return ok(index.render("Your new application is ready."));
     }
 
+    public Result city() {
+        return ok(city.render("City Releated actions"));
+    }
 }

@@ -3,6 +3,8 @@ package model;
 import com.datastax.driver.core.Row;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -23,9 +25,10 @@ public class Hotel {
     }
     public Hotel(JsonNode json) {
         System.out.println(json);
-        name = json.get("name").asText();
+        name = json.get("hotelName").asText();
         city = json.get("city").asText();
         description = json.get("description").asText();
+        rooms = new HashSet<>(Arrays.asList(json.get("rooms").asText().split(",")));
     }
 
     public String getName() {

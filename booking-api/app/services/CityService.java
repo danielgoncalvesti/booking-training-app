@@ -19,26 +19,33 @@ import java.util.stream.Collectors;
 @Singleton
 public class CityService {
 
-    private final ApplicationLifecycle appLifecycle;
     private final Session session;
     private final BoundStatement selectAllBs;
-//    private final BoundStatement insertBs;
+    private final BoundStatement insertBs;
 
     @Inject
-    public CityService(ApplicationLifecycle appLifecycle, Session session) {
-        this.appLifecycle = appLifecycle;
+    public CityService(Session session) {
         this.session = session;
-        PreparedStatement selectAll = session.prepare("select * from hotels where city = ?;");
+        PreparedStatement selectAll = session.prepare(
+                        "select hotel_name, city, description, rooms from hotels where city = :city;");
         selectAllBs = new BoundStatement(selectAll);
-//        PreparedStatement insert = session.prepare("insert into hotel (user_name, password, gender, " +
-//                "session_token, state, birth_year) VALUES (?, ?, ?, ?, ?, ?);");
-//        insertBs = new BoundStatement(insert);
+        PreparedStatement insert = session.prepare("insert into hotels (hotel_name, city, description, rooms)" +
+                " VALUES (:hotel_name, :city, :description, :rooms);");
+        insertBs = new BoundStatement(insert);
     }
 
     public List<Hotel> getHotels(String city) {
-        selectAllBs.setString(0, city);
+        selectAllBs.setString("city", city);
         List<Row> rows = session.execute(selectAllBs).all();
         return rows.stream().map(Hotel::new).collect(Collectors.toList());
     }
 
+    public Hotel saveHotel(Hotel hotel) {
+        insertBs.setString("hotel_name", hotel.getName());
+        insertBs.setString("city", hotel.getCity());
+        insertBs.setString("description", hotel.getDescription());
+        insertBs.setSet("rooms", hotel.getRooms(), String.class);
+        session.execute(insertBs);
+        return hotel;
+    }
 }
