@@ -42,8 +42,12 @@
                 });
             }
             $(document).ready(function() {
-                $('#startReserveTime').datepicker();
-                $('#endReserveTime').datepicker();
+                $('#startReserveTime').datepicker({
+                    dateFormat: "yy/mm/dd"
+                });
+                $('#endReserveTime').datepicker({
+                    dateFormat: "yy/mm/dd"
+                });
                 $.ajax({
                     type :  "GET",
                     dataType: 'json',
