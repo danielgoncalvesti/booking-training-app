@@ -10,7 +10,59 @@
 *@
 @main("Welcome to Play") {
     <script type="text/javascript">
+            var hotels;
+            function fillHotels(city) {
+                $('#hotelName').empty();
+                $.ajax({
+                    type :  "POST",
+                    dataType: 'json',
+                    data: JSON.stringify({"city" : city}),
+                    contentType: "application/json; charset=utf-8",
+                    url  :  "@routes.ApiController.getCity",
+                    success: function(data) {
+                        hotels = data;
+                        $.each(data, function(i) {
+                            $('#hotelName').append($('<option></option>').val(data[i].name).html(data[i].name));
+                        });
+                        fillRooms();
+                        $('#hotelName').change(function () {fillRooms();})
+                    }
+                });
+            }
+            function fillRooms() {
+                var hotelName = $('#hotelName').val();
+                $('#room').empty();
+                $.each(hotels, function(i) {
+                    var hotel = hotels[i];
+                    if (hotel.name == hotelName) {
+                        $.each(hotel.rooms, function (j) {
+                            $('#room').append($('<option></option>').val(hotel.rooms[j]).html(hotel.rooms[j]));
+                        })
+                    }
+                });
+            }
             $(document).ready(function() {
+                $('#startReserveTime').datepicker();
+                $('#endReserveTime').datepicker();
+                $.ajax({
+                    type :  "GET",
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    url  :  "@routes.ApiController.getCities",
+                    success: function(data){
+                        $.each(data, function(i) {
+                            $('#city').append(
+                                    $('<option></option>').val(data[i]).html(data[i])
+                            );
+                        });
+                        var city = $('#city');
+                        fillHotels(city.val());
+                        city.change(function(val){
+                            fillHotels($('#city').val());
+                        })
+                    }
+                });
+
                 $('#save').click(function() {
                     var d = {
                         'hotelName' : $('#hotelName').val(),
@@ -49,7 +101,7 @@
                         }
                     });
                 });
-            });
+            })
     </script>
 } {
     <a href="@routes.HomeController.index()"><- Back</a>
@@ -57,21 +109,23 @@
     <form>
         <table>
             <tr>
-                <td><label for="hotelName">Hotel Name</label></td><td><input type="text" id="hotelName"/></td>
+                <td><label for="hotelName">Hotel Name</label></td><td><select id="hotelName"></select></td>
                 <td><input type="button" name="listFreeRooms" id="listFreeRooms" value="List Free Rooms"/></td>
                 <td rowspan="5" id="dataTable"></td>
             </tr>
             <tr>
-                <td><label for="city">City</label></td><td><input type="text" id="city"/></td>
+                <td><label for="city">City</label></td><td><select id="city"></select></td>
             </tr>
             <tr>
-                <td><label for="room">Room</label></td><td><input type="text" id="room"/></td>
+                <td><label for="room">Room</label></td><td><select id="room"></select></td>
             </tr>
             <tr>
-                <td><label for="startReserveTime">startReserveTime</label></td><td><input type="text" id="startReserveTime"/></td>
+                <td><label for="startReserveTime">
+                    startReserveTime</label></td><td><input type="text" id="startReserveTime"/></td>
             </tr>
             <tr>
-                <td><label for="endReserveTime">endReserveTime</label></td><td><input type="text" id="endReserveTime"/></td>
+                <td><label for="endReserveTime">
+                    endReserveTime</label></td><td><input type="text" id="endReserveTime"/></td>
             </tr>
             <tr>
                 <td><label for="guestName">guestName</label></td><td><input type="text" id="guestName"/></td>

@@ -60,6 +60,11 @@ POST   /api/get/roombyguest    controllers.ApiController.roomByGuest
 #Please check if the room is available when adding a new booking to a Cassandra table.
 POST   /api/add/booking        controllers.ApiController.addBooking()
 
+#
+# Additional api returning dictionary
+#
+GET   /api/get/allCities      controllers.ApiController.getCities
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file          controllers.Assets.versioned(path="/public", file: Asset)

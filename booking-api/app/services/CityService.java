@@ -19,43 +19,52 @@ import java.util.stream.Collectors;
 public class CityService {
 
     private final Session session;
-    private final BoundStatement selectAllBs;
-    private final BoundStatement select;
-    private final BoundStatement insertBs;
+    private final PreparedStatement selectAllHotelsByCity;
+    private final PreparedStatement selectHotel;
+    private final PreparedStatement insertHotel;
+    private final BoundStatement selectCities;
 
     @Inject
     public CityService(Session session) {
         this.session = session;
-        PreparedStatement selectAll = session.prepare(
+        selectAllHotelsByCity = session.prepare(
                         "select hotel_name, city, description, rooms from hotels where city = :city;");
-        selectAllBs = new BoundStatement(selectAll);
-        PreparedStatement insert = session.prepare("insert into hotels (hotel_name, city, description, rooms)" +
+        insertHotel = session.prepare("insert into hotels (hotel_name, city, description, rooms)" +
                 " VALUES (:hotel_name, :city, :description, :rooms);");
-        insertBs = new BoundStatement(insert);
-        PreparedStatement select = session.prepare(
+        selectHotel = session.prepare(
                 "select hotel_name, city, description, rooms from hotels where city = :city and hotel_name = :hotel_name;");
-        this.select = new BoundStatement(select);
+
+        PreparedStatement selectCities = session.prepare("select distinct city from hotels");
+        this.selectCities = new BoundStatement(selectCities);
     }
 
     public List<Hotel> getHotels(String city) {
-        selectAllBs.setString("city", city);
-        List<Row> rows = session.execute(selectAllBs).all();
+        BoundStatement selectAllByCity = new BoundStatement(this.selectAllHotelsByCity);
+        selectAllByCity.setString("city", city);
+        List<Row> rows = session.execute(selectAllByCity).all();
         return rows.stream().map(Hotel::new).collect(Collectors.toList());
     }
 
     public Hotel getHotel(String city, String hotelName) {
-        select.setString("city", city);
-        select.setString("hotel_name", hotelName);
-        Row row = session.execute(select).one();
+        BoundStatement selectHotel = new BoundStatement(this.selectHotel);
+        selectHotel.setString("city", city);
+        selectHotel.setString("hotel_name", hotelName);
+        Row row = session.execute(selectHotel).one();
         return new Hotel(row);
     }
 
     public Hotel saveHotel(Hotel hotel) {
-        insertBs.setString("hotel_name", hotel.getName());
-        insertBs.setString("city", hotel.getCity());
-        insertBs.setString("description", hotel.getDescription());
-        insertBs.setSet("rooms", hotel.getRooms(), String.class);
-        session.execute(insertBs);
+        BoundStatement insertHotel = new BoundStatement(this.insertHotel);
+        insertHotel.setString("hotel_name", hotel.getName());
+        insertHotel.setString("city", hotel.getCity());
+        insertHotel.setString("description", hotel.getDescription());
+        insertHotel.setSet("rooms", hotel.getRooms(), String.class);
+        session.execute(insertHotel);
         return hotel;
+    }
+
+    public List<String> getCities() {
+        List<Row> rs = session.execute(selectCities).all();
+        return rs.stream().map(row -> row.getString("city")).collect(Collectors.toList());
     }
 }

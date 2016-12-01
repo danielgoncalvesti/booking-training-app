@@ -13,6 +13,7 @@ import scala.concurrent.ExecutionContextExecutor;
 import scala.concurrent.duration.Duration;
 import services.BookingService;
 import services.CityService;
+import services.GuestService;
 
 import javax.inject.Inject;
 import java.text.ParseException;
@@ -27,14 +28,17 @@ public class ApiController extends Controller {
     private final ExecutionContextExecutor exec;
     private final CityService cityService;
     private final BookingService bookingService;
+    private final GuestService guestService;
 
     @Inject
     public ApiController(ActorSystem actorSystem, ExecutionContextExecutor exec,
-                         CityService cityService, BookingService bookingService) {
+                         CityService cityService, BookingService bookingService,
+                         GuestService guestService) {
         this.actorSystem = actorSystem;
         this.exec = exec;
         this.cityService = cityService;
         this.bookingService = bookingService;
+        this.guestService = guestService;
     }
 
     public Result addGuest() {
@@ -44,9 +48,19 @@ public class ApiController extends Controller {
     public Result addRoom() {
         return play.mvc.Results.TODO;
     }
-
-    public Result roomByGuest() {
-        return play.mvc.Results.TODO;
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> roomByGuest() {
+        JsonNode node = request().body().asJson();
+        String guest = node.get("guest").asText();
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(guestService.getRoomsByGuest(guest, null)))
+                ),
+                exec
+        );
+        return future;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -108,6 +122,18 @@ public class ApiController extends Controller {
                 Duration.create(1, TimeUnit.MICROSECONDS),
                 (Runnable) () -> future.complete(
                         ok(Json.toJson(cityService.getHotels(city)))
+                ),
+                exec
+        );
+        return future;
+    }
+
+    public CompletableFuture<Result> getCities() {
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(cityService.getCities()))
                 ),
                 exec
         );
