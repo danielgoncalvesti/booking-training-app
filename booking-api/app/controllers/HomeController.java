@@ -21,6 +21,10 @@ public class HomeController extends Controller {
     }
 
     public Result city() {
-        return ok(city.render("City Releated actions"));
+        return ok(city.render("City Related actions"));
+    }
+
+    public Result booking() {
+        return ok(booking.render("Booking Related actions"));
     }
 }

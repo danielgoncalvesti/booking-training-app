@@ -29,27 +29,60 @@
                         }
                     });
                 });
+                $('#listCity').click(function () {
+                    var city = {
+                        "city": $('#city').val()
+                    };
+                    $.ajax({
+                        type :  "POST",
+                        dataType: 'json',
+                        data: JSON.stringify(city),
+                        contentType: "application/json; charset=utf-8",
+                        url  :  "@routes.ApiController.getCity",
+                        success: function(data){
+                            var dataTable = $('#dataTable');
+                            dataTable.empty();
+                            var dataTableContent = dataTable.append(
+                                    "<table>" +
+                                    "  <tr><th>Hotel Name</th><th>City</th><th>Description</th><th>Rooms</th></tr>" +
+                                    "</table>");
+                            for (var i in  data) {
+                                var row = data[i];
+                                dataTableContent.find('tbody')
+                                        .append($('<tr>')
+                                                .append(
+                                                        "<td>" + row.name + "</td>" +
+                                                        "<td>" + row.city + "</td>" +
+                                                        "<td>" + row.description + "</td>" +
+                                                        "<td>" + row.rooms + "</td>"
+                                                ));
+                            }
+                        }
+                    });
+                });
             });
     </script>
 } {
+    <a href="@routes.HomeController.index()"><- Back</a>
     <h1>City Operations</h1>
     <form>
         <table>
             <tr>
-                <td><label for="hotelName">Hotel Name</label></td><td><input type="text" id="hotelName"/></td>
-            </tr>
-            <tr>
                 <td><label for="city">City</label></td><td><input type="text" id="city"/></td>
+                <td><input type="button" name="listCity" id="listCity" value="List Hotels"/></td>
+                <td rowspan="3" id="dataTable"></td>
             </tr>
             <tr>
-                <td><label for="description">Description</label></td><td><input type="text" id="description"/></td>
+                <td><label for="hotelName">Hotel Name</label></td><td><input type="text" id="hotelName"/></td><td></td>
             </tr>
             <tr>
-                <td><label for="rooms">Rooms</label></td><td><input type="text" id="rooms"/></td>
+                <td><label for="description">Description</label></td><td><input type="text" id="description"/></td><td></td>
+            </tr>
+            <tr>
+                <td><label for="rooms">Rooms</label></td><td><input type="text" id="rooms"/></td><td></td>
             </tr>
         </table>
         <input type="button" name="save" id="save" value="Save"/>
-        <input type="button" name="listCity" id="listCity" value="List Hotels"/>
     </form>
 
 }

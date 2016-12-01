@@ -1,58 +1,67 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
+
+#Explanation: Guest has booked some room / rooms. Gets booked room / rooms by the specific date and guest number.
+
+
+
+# An example controller showing a sample home page
+GET     /                      controllers.HomeController.index
+
+GET     /city                  controllers.HomeController.city
+
+GET     /booking               controllers.HomeController.booking
+
+GET     /api                   controllers.ApiController.index
+
 #RESTful API Queries
-#
+
 #POST URL: "api" / "get" / "city"
 #
 #JSON example: {"city":"London"}
 #
 #Explanation: Get all hotels of a current city.
 #
+POST   /api/get/city           controllers.ApiController.getCity
+#
 #POST URL: "api" / "add" / "hotel"
 #
 #Explanation: Adds a new hotel to the system.
 #
+POST   /api/add/hotel          controllers.ApiController.saveHotel
+#
 #POST URL: "api" / "add" / "guest"
 #
 #Explanation: Adds a new guest, who is going to book a room.
+#todo: implement
+POST   /api/add/guest          controllers.ApiController.addGuest()
 #
 #POST URL: "api" / "add" / "room"
 #
 #Explanation: Adds a new room to a hotel.
+#
+POST   /api/add/room           controllers.ApiController.addRoom()
 #
 #POST URL: "api" / "get" / "freerooms"
 #
 #Explanation: Gets free rooms in a specific hotel for the current period.
 #
 #For example - "startReserveTime":"2016/4/21","endReserveTime":"2016/4/23"
+POST   /api/get/freerooms      controllers.ApiController.freeRooms
 #
 #POST URL: "api" / "get" / "roombyguest"
 #
-#Explanation: Guest has booked some room / rooms. Gets booked room / rooms by the specific date and guest number.
+POST   /api/get/roombyguest    controllers.ApiController.roomByGuest
 #
 #"api" / "add" / "booking"
 #
 #Explanation: Adds a new room booking for a guest.
 #
 #Please check if the room is available when adding a new booking to a Cassandra table.
+POST   /api/add/booking        controllers.ApiController.addBooking()
 
-
-# An example controller showing a sample home page
-GET     /                    controllers.HomeController.index
-
-GET     /city                controllers.HomeController.city
-
-GET     /api                 controllers.ApiController.index
-
-GET    /api/get/users        controllers.ApiController.getUsers
-
-POST   /api/put/user         controllers.ApiController.insertUser()
-
-POST   /api/get/city         controllers.ApiController.getCity
-
-POST   /api/add/hotel        controllers.ApiController.saveHotel
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file          controllers.Assets.versioned(path="/public", file: Asset)
 
 
