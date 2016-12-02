@@ -3,19 +3,24 @@
 * message to display.
 *@
 @(message: String)
-@*
-* Call the `main` template with two arguments. The first
-* argument is a `String` with the title of the page, the second
-* argument is an `Html` object containing the body of the page.
-*@
-@main("Welcome to Play") { } {
     @*
-    * Get an `Html` object by calling the built-in Play welcome
-    * template and passing a `String` message.
+    * Call the `main` template with two arguments. The first
+    * argument is a `String` with the title of the page, the second
+    * argument is an `Html` object containing the body of the page.
     *@
-    @* @play20.welcome(message, style = "Java") *@
-    <h1>Some content</h1>
-    <a href="@routes.HomeController.city()">Create, List, Modify Hotels</a><br/>
-    <a href="@routes.HomeController.booking()">/api/booking/...</a>
+    @main("Welcome to Play") {
 
-}
+    } {
+        @*
+        * Get an `Html` object by calling the built-in Play welcome
+        * template and passing a `String` message.
+        *@
+        @* @play20.welcome(message, style = "Java") *@
+        <div style="width: 60%; margin: 0px auto;">
+            <h1>Booking API</h1>
+            <a href="@routes.HomeController.city()">Create, List, Modify Hotels</a><br/><br/>
+            <a href="@routes.HomeController.booking()">Add Booking, List Free Rooms</a><br/><br/>
+            <a href="@routes.HomeController.booking()">Add Booking, List Free Rooms</a>
+        </div>
+
+    }
