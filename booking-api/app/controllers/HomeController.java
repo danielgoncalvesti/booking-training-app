@@ -27,4 +27,8 @@ public class HomeController extends Controller {
     public Result booking() {
         return ok(booking.render("Booking Related actions"));
     }
+
+    public Result guest() {
+        return ok(guest.render("Guest Related actions"));
+    }
 }

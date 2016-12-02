@@ -7,7 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by Admin on 01-Dec-16.
+ * Request object for free rooms
+ * Created by Gleb on 01-Dec-16.
  */
 public class FreeRoomsRequest {
     private String hotelName;

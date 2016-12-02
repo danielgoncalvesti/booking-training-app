@@ -1,15 +1,4 @@
 CREATE KEYSPACE Booking WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-CREATE TABLE Booking.users (
-  user_name varchar PRIMARY KEY,
-  password varchar,
-  gender varchar,
-  session_token varchar,
-  state varchar,
-  birth_year bigint
-);
-
-
-INSERT INTO Booking.users (user_name, password, gender, session_token, state, birth_year) VALUES ('Admin', 'Password', 'M', 'token', 'Alabama', 1977);
 
 CREATE TABLE Booking.hotels (
   hotel_name text,
@@ -29,6 +18,23 @@ CREATE TABLE Booking.booking (
   booking_day timestamp,
   guest_name text,
   PRIMARY KEY ((city), hotel_name, booking_day, room)
+);
+
+CREATE TABLE Booking.guests (
+  city text,
+  hotel_name text,
+  guest_name text,
+  PRIMARY KEY ((city), hotel_name, guest_name)
+);
+
+
+CREATE TABLE Booking.guest_booking (
+  city text,
+  hotel_name text,
+  guest_name text,
+  room text,
+  booking_day timestamp,
+  PRIMARY KEY ((city), hotel_name, guest_name, booking_day, room)
 );
 
 

@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
 import model.Booking;
 import model.FreeRoomsRequest;
+import model.GuestBookingRequest;
 import model.Hotel;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -41,22 +42,52 @@ public class ApiController extends Controller {
         this.guestService = guestService;
     }
 
-    public Result addGuest() {
-        return play.mvc.Results.TODO;
-    }
-
-    public Result addRoom() {
-        return play.mvc.Results.TODO;
-    }
-    @BodyParser.Of(BodyParser.Json.class)
-    public CompletionStage<Result> roomByGuest() {
+    public CompletionStage<Result> getGuests() {
         JsonNode node = request().body().asJson();
-        String guest = node.get("guest").asText();
+        String city = node.get("city").asText();
+        String hotelName = node.get("hotelName").asText();
         CompletableFuture<Result> future = new CompletableFuture<>();
         actorSystem.scheduler().scheduleOnce(
                 Duration.create(1, TimeUnit.MICROSECONDS),
                 (Runnable) () -> future.complete(
-                        ok(Json.toJson(guestService.getRoomsByGuest(guest, null)))
+                        ok(Json.toJson(guestService.getGuests(city, hotelName)))
+                ),
+                exec
+        );
+        return future;
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> addGuest() {
+        JsonNode node = request().body().asJson();
+        String city = node.get("city").asText();
+        String hotelName = node.get("hotelName").asText();
+        String guestName = node.get("guestName").asText();
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(guestService.addGuest(city, hotelName, guestName)))
+                ),
+                exec
+        );
+        return future;
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result addRoom() {
+        return play.mvc.Results.TODO;
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> roomByGuest() throws ParseException {
+        JsonNode node = request().body().asJson();
+        GuestBookingRequest request = new GuestBookingRequest(node);
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(guestService.getRoomsByGuest(request)))
                 ),
                 exec
         );

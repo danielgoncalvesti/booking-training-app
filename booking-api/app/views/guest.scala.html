@@ -1,0 +1,127 @@
+@*
+* This template takes a single argument, a String containing a
+* message to display.
+*@
+@(message: String)
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+@main("Welcome to Play") {
+    <script type="text/javascript">
+            var hotels;
+            function fillHotels(city) {
+                $('#hotelName').empty();
+                $.ajax({
+                    type :  "POST",
+                    dataType: 'json',
+                    data: JSON.stringify({"city" : city}),
+                    contentType: "application/json; charset=utf-8",
+                    url  :  "@routes.ApiController.getCity",
+                    success: function(data) {
+                        hotels = data;
+                        $.each(data, function(i) {
+                            $('#hotelName').append($('<option></option>').val(data[i].name).html(data[i].name));
+                        });
+                    }
+                });
+            }
+            $(document).ready(function() {
+                $('#startReserveTime').datepicker({
+                    dateFormat: "yy/mm/dd"
+                });
+                $('#endReserveTime').datepicker({
+                    dateFormat: "yy/mm/dd"
+                });
+                $.ajax({
+                    type :  "GET",
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    url  :  "@routes.ApiController.getCities",
+                    success: function(data){
+                        $.each(data, function(i) {
+                            $('#city').append(
+                                    $('<option></option>').val(data[i]).html(data[i])
+                            );
+                        });
+                        var city = $('#city');
+                        fillHotels(city.val());
+                        city.change(function(val){
+                            fillHotels($('#city').val());
+                        })
+                    }
+                });
+
+                $('#save').click(function() {
+                    var d = {
+                        'hotelName' : $('#hotelName').val(),
+                        'city' : $('#city').val(),
+                        'room' : $('#room').val(),
+                        'startReserveTime' : $('#startReserveTime').val(),
+                        'endReserveTime' : $('#endReserveTime').val(),
+                        'guestName' : $('#guestName').val()
+                    };
+                    $.ajax({
+                        type :  "POST",
+                        dataType: 'json',
+                        data: JSON.stringify(d),
+                        contentType: "application/json; charset=utf-8",
+                        url  :  "@routes.ApiController.addBooking()",
+                        success: function(data){
+                            console.log(data);
+                        }
+                    });
+                });
+                $('#listFreeRooms').click(function () {
+                    var d = {
+                        'hotelName' : $('#hotelName').val(),
+                        'city' : $('#city').val(),
+                        'startReserveTime' : $('#startReserveTime').val(),
+                        'endReserveTime' : $('#endReserveTime').val()
+                    };
+                    $.ajax({
+                        type :  "POST",
+                        dataType: 'json',
+                        data: JSON.stringify(d),
+                        contentType: "application/json; charset=utf-8",
+                        url  :  "@routes.ApiController.freeRooms",
+                        success: function(data){
+                            console.log(data);
+                        }
+                    });
+                });
+            })
+    </script>
+} {
+    <a href="@routes.HomeController.index()"><- Back</a>
+    <h1>Guest Operations</h1>
+    <form>
+        <table>
+            <tr>
+                <td><label for="hotelName">Hotel Name</label></td><td><select id="hotelName"></select></td>
+                <td><input type="button" name="listFreeRooms" id="listFreeRooms" value="List Free Rooms"/></td>
+                <td rowspan="5" id="dataTable"></td>
+            </tr>
+            <tr>
+                <td><label for="city">City</label></td><td><select id="city"></select></td>
+            </tr>
+            <tr>
+                <td><label for="room">Room</label></td><td><select id="room"></select></td>
+            </tr>
+            <tr>
+                <td><label for="startReserveTime">
+                    startReserveTime</label></td><td><input type="text" id="startReserveTime"/></td>
+            </tr>
+            <tr>
+                <td><label for="endReserveTime">
+                    endReserveTime</label></td><td><input type="text" id="endReserveTime"/></td>
+            </tr>
+            <tr>
+                <td><label for="guestName">guestName</label></td><td><input type="text" id="guestName"/></td>
+            </tr>
+        </table>
+        <input type="button" name="save" id="save" value="Save"/>
+    </form>
+
+}

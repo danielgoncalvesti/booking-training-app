@@ -12,6 +12,8 @@ GET     /city                  controllers.HomeController.city
 
 GET     /booking               controllers.HomeController.booking
 
+GET     /guest                 controllers.HomeController.guest
+
 GET     /api                   controllers.ApiController.index
 
 #RESTful API Queries
@@ -28,6 +30,7 @@ POST   /api/get/city           controllers.ApiController.getCity
 #
 #Explanation: Adds a new hotel to the system.
 #
+
 POST   /api/add/hotel          controllers.ApiController.saveHotel
 #
 #POST URL: "api" / "add" / "guest"
@@ -64,7 +67,7 @@ POST   /api/add/booking        controllers.ApiController.addBooking()
 # Additional api returning dictionary
 #
 GET   /api/get/allCities      controllers.ApiController.getCities
-
+POST  /api/get/guests         controllers.ApiController.getGuests
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file          controllers.Assets.versioned(path="/public", file: Asset)

@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 import model.Booking;
 import model.FreeRoomsRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,37 +18,47 @@ public class BookingService {
 
     // insert into Booking.hotels (city, hotel_name, description) values ('Odessa', 'BM2', 'ONE-1') if not exists;
     private final Session session;
-    private final PreparedStatement insert;
+    private final PreparedStatement insertBooking;
     private final PreparedStatement listBooking;
     private final CityService cityService;
+    private final GuestService guestService;
+
     @Inject
-    public BookingService(Session session, CityService cityService) {
+    public BookingService(Session session, CityService cityService, GuestService guestService) {
         this.session = session;
         this.cityService = cityService;
-        insert = session.prepare("insert into booking (hotel_name, city, room, booking_day, guest_name)" +
+        this.guestService = guestService;
+
+        insertBooking = session.prepare("insert into booking (hotel_name, city, room, booking_day, guest_name)" +
                 " values (:hotel_name, :city, :room, :booking_day, :guest_name) if not exists;");
+
         listBooking = session.prepare("select room from booking " +
                 "where city = :city and hotel_name = :hotel_name " +
                 "and booking_day >= :booking_start and booking_day <= :booking_end");
+
     }
 
     public Boolean addBookings(List<Booking> bookings) {
 
-        List<Boolean> results = new ArrayList<>();
         BatchStatement batchStatement = new BatchStatement();
         batchStatement.setConsistencyLevel(ConsistencyLevel.ALL);
         for (Booking booking : bookings) {
-            BoundStatement insert = new BoundStatement(this.insert);
-            insert.setString("hotel_name", booking.getHotelName());
-            insert.setString("city", booking.getCity());
-            insert.setString("room", booking.getRoom());
-            insert.setTimestamp("booking_day", booking.getBookingDay());
-            insert.setString("guest_name", booking.getGuestName());
-            batchStatement.add(insert);
+            BoundStatement insertBooking = new BoundStatement(this.insertBooking);
+            insertBooking.setString("hotel_name", booking.getHotelName());
+            insertBooking.setString("city", booking.getCity());
+            insertBooking.setString("room", booking.getRoom());
+            insertBooking.setTimestamp("booking_day", booking.getBookingDay());
+            insertBooking.setString("guest_name", booking.getGuestName());
+
+            batchStatement.add(insertBooking);
         }
         ResultSet rs = session.execute(batchStatement);
-        results.add(rs.wasApplied());
-        return  !results.contains(Boolean.FALSE);
+        if (rs.wasApplied()) {
+            guestService.addGuestBookings(bookings);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Set<String> getFreeRooms(FreeRoomsRequest request) {
