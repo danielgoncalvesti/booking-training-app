@@ -28,10 +28,27 @@
                             console.log(data);
                         }
                     });
+                    $("#createDialog").dialog('close');
+                });
+                $("#cancel").click(function () {
+                    $("#createDialog").dialog('close');
+                });
+                $.ajax({
+                    type :  "GET",
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    url  :  "@routes.ApiController.getCities",
+                    success: function(data){
+                        $.each(data, function(i) {
+                            $('#cities').append(
+                                    $('<option></option>').val(data[i]).html(data[i])
+                            );
+                        });
+                    }
                 });
                 $('#listCity').click(function () {
                     var city = {
-                        "city": $('#city').val()
+                        "city": $('#cities').val()
                     };
                     $.ajax({
                         type :  "POST",
@@ -43,8 +60,8 @@
                             var dataTable = $('#dataTable');
                             dataTable.empty();
                             var dataTableContent = dataTable.append(
-                                    "<table>" +
-                                    "  <tr><th>Hotel Name</th><th>City</th><th>Description</th><th>Rooms</th></tr>" +
+                                    "<table width='100%'>" +
+                                    "  <tr><td><b>Hotel Name</b></td><td><b>City</b></td><td><b>Description</b></td><td><b>Rooms</b></td></tr>" +
                                     "</table>");
                             for (var i in  data) {
                                 var row = data[i];
@@ -60,29 +77,45 @@
                         }
                     });
                 });
+                $("#createDialog").dialog({ autoOpen: false });
+                $('#addHotel').click(function () {
+                    $("#createDialog").dialog('open');
+                });
             });
     </script>
 } {
     <a href="@routes.HomeController.index()"><- Back</a>
     <h1>City Operations</h1>
-    <form>
-        <table>
-            <tr>
-                <td><label for="city">City</label></td><td><input type="text" id="city"/></td>
-                <td><input type="button" name="listCity" id="listCity" value="List Hotels"/></td>
-                <td rowspan="3" id="dataTable"></td>
-            </tr>
-            <tr>
-                <td><label for="hotelName">Hotel Name</label></td><td><input type="text" id="hotelName"/></td><td></td>
-            </tr>
-            <tr>
-                <td><label for="description">Description</label></td><td><input type="text" id="description"/></td><td></td>
-            </tr>
-            <tr>
-                <td><label for="rooms">Rooms</label></td><td><input type="text" id="rooms"/></td><td></td>
-            </tr>
-        </table>
-        <input type="button" name="save" id="save" value="Save"/>
-    </form>
-
+    <table width="100%">
+        <tr>
+            <td>City</td>
+            <td><select id="cities"></select></td>
+            <td><input type="button" name="listCity" id="listCity" value="List Hotels"/></td>
+            <td><input type="button" name="addHotel" id="addHotel" value="Add Hotel"/></td>
+        </tr>
+        <tr>
+            <td id="dataTable" colspan="3"></td>
+        </tr>
+    </table>
+    <div id="createDialog" style="display: none;">
+        <form>
+            <table>
+                <tr>
+                    <td><label for="city">City</label></td><td><input type="text" id="city"/></td>
+                </tr>
+                <tr>
+                    <td><label for="hotelName">Hotel Name</label></td><td><input type="text" id="hotelName"/></td><td></td>
+                </tr>
+                <tr>
+                    <td><label for="description">
+                        Description</label></td><td><input type="text" id="description"/></td><td></td>
+                </tr>
+                <tr>
+                    <td><label for="rooms">Rooms</label></td><td><input type="text" id="rooms"/></td><td></td>
+                </tr>
+            </table>
+            <input type="button" name="save" id="save" value="Save"/>
+            <input type="button" name="cancel" id="cancel" value="Cancel"/>
+        </form>
+    </div>
 }

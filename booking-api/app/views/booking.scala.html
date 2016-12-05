@@ -40,6 +40,25 @@
                         })
                     }
                 });
+                fillGuests();
+            }
+            function fillGuests() {
+                $('#guestName').empty();
+                $.ajax({
+                    type : "POST",
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        "city" : $('#city').val(),
+                        "hotelName" : $('#hotelName').val()
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    url  :  "@routes.ApiController.getGuests",
+                    success: function(data) {
+                        $.each(data, function(i) {
+                            $('#guestName').append($('<option></option>').val(data[i]).html(data[i]));
+                        });
+                    }
+                })
             }
             $(document).ready(function() {
                 $('#startReserveTime').datepicker({
@@ -132,7 +151,7 @@
                     endReserveTime</label></td><td><input type="text" id="endReserveTime"/></td>
             </tr>
             <tr>
-                <td><label for="guestName">guestName</label></td><td><input type="text" id="guestName"/></td>
+                <td><label for="guestName">guestName</label></td><td><select id="guestName" name="guestName"></select></td>
             </tr>
         </table>
         <input type="button" name="save" id="save" value="Save"/>

@@ -24,8 +24,27 @@
                         $.each(data, function(i) {
                             $('#hotelName').append($('<option></option>').val(data[i].name).html(data[i].name));
                         });
+                        fillGuests();
                     }
                 });
+            }
+            function fillGuests() {
+                $('#guestName').empty();
+                $.ajax({
+                    type : "POST",
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        "city" : $('#city').val(),
+                        "hotelName" : $('#hotelName').val()
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    url  :  "@routes.ApiController.getGuests",
+                    success: function(data) {
+                        $.each(data, function(i) {
+                            $('#guestName').append($('<option></option>').val(data[i]).html(data[i]));
+                        });
+                    }
+                })
             }
             $(document).ready(function() {
                 $('#startReserveTime').datepicker({
@@ -47,19 +66,16 @@
                         });
                         var city = $('#city');
                         fillHotels(city.val());
-                        city.change(function(val){
+                        city.change(function(){
                             fillHotels($('#city').val());
                         })
                     }
                 });
-
+                $('#hotelName').change(function () {fillGuests()});
                 $('#save').click(function() {
                     var d = {
                         'hotelName' : $('#hotelName').val(),
                         'city' : $('#city').val(),
-                        'room' : $('#room').val(),
-                        'startReserveTime' : $('#startReserveTime').val(),
-                        'endReserveTime' : $('#endReserveTime').val(),
                         'guestName' : $('#guestName').val()
                     };
                     $.ajax({
@@ -67,13 +83,13 @@
                         dataType: 'json',
                         data: JSON.stringify(d),
                         contentType: "application/json; charset=utf-8",
-                        url  :  "@routes.ApiController.addBooking()",
+                        url  :  "@routes.ApiController.addGuest()",
                         success: function(data){
                             console.log(data);
                         }
                     });
                 });
-                $('#listFreeRooms').click(function () {
+                $('#listGuestBookings').click(function () {
                     var d = {
                         'hotelName' : $('#hotelName').val(),
                         'city' : $('#city').val(),
@@ -99,26 +115,15 @@
     <form>
         <table>
             <tr>
-                <td><label for="hotelName">Hotel Name</label></td><td><select id="hotelName"></select></td>
-                <td><input type="button" name="listFreeRooms" id="listFreeRooms" value="List Free Rooms"/></td>
+                <td><label for="hotelName">Hotel Name</label></td><td><select name="hotelName" id="hotelName"></select></td>
+                <td><input type="button" name="listGuestBookings" id="listGuestBookings" value="List Guest Bookings"/></td>
                 <td rowspan="5" id="dataTable"></td>
             </tr>
             <tr>
                 <td><label for="city">City</label></td><td><select id="city"></select></td>
             </tr>
             <tr>
-                <td><label for="room">Room</label></td><td><select id="room"></select></td>
-            </tr>
-            <tr>
-                <td><label for="startReserveTime">
-                    startReserveTime</label></td><td><input type="text" id="startReserveTime"/></td>
-            </tr>
-            <tr>
-                <td><label for="endReserveTime">
-                    endReserveTime</label></td><td><input type="text" id="endReserveTime"/></td>
-            </tr>
-            <tr>
-                <td><label for="guestName">guestName</label></td><td><input type="text" id="guestName"/></td>
+                <td><label for="guestName">guestName</label></td><td><select name="guestName" id="guestName"></select></td>
             </tr>
         </table>
         <input type="button" name="save" id="save" value="Save"/>
