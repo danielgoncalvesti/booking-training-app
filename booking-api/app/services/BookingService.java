@@ -60,7 +60,7 @@ public class BookingService {
             return false;
         }
     }
-
+    //todo: seems to be not the best way as there are 2 queries and returned rooms are not distinct selected
     public Set<String> getFreeRooms(FreeRoomsRequest request) {
         Set<String> rooms = cityService.getHotel(request.getCity(), request.getHotelName()).getRooms();
         BoundStatement listBooking = new BoundStatement(this.listBooking);

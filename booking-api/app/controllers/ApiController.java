@@ -75,8 +75,20 @@ public class ApiController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public Result addRoom() {
-        return play.mvc.Results.TODO;
+    public CompletionStage<Result> addRoom() {
+        JsonNode node = request().body().asJson();
+        String city = node.get("city").asText();
+        String hotelName = node.get("hotelName").asText();
+        String room = node.get("room").asText();
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        actorSystem.scheduler().scheduleOnce(
+                Duration.create(1, TimeUnit.MICROSECONDS),
+                (Runnable) () -> future.complete(
+                        ok(Json.toJson(cityService.addRoom(city, hotelName, room)))
+                ),
+                exec
+        );
+        return future;
     }
 
     @BodyParser.Of(BodyParser.Json.class)

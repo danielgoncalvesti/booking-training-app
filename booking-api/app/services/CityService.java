@@ -1,9 +1,6 @@
 package services;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
+import com.datastax.driver.core.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import model.Hotel;
@@ -22,6 +19,7 @@ public class CityService {
     private final PreparedStatement selectAllHotelsByCity;
     private final PreparedStatement selectHotel;
     private final PreparedStatement insertHotel;
+    private final PreparedStatement updateHotelRooms;
     private final BoundStatement selectCities;
 
     @Inject
@@ -33,7 +31,8 @@ public class CityService {
                 " VALUES (:hotel_name, :city, :description, :rooms);");
         selectHotel = session.prepare(
                 "select hotel_name, city, description, rooms from hotels where city = :city and hotel_name = :hotel_name;");
-
+        updateHotelRooms = session.prepare("update hotels set rooms = rooms + {:room} " +
+                "where city = :city and hotel_name = :hotel_name;");
         PreparedStatement selectCities = session.prepare("select distinct city from hotels");
         this.selectCities = new BoundStatement(selectCities);
     }
@@ -66,5 +65,14 @@ public class CityService {
     public List<String> getCities() {
         List<Row> rs = session.execute(selectCities).all();
         return rs.stream().map(row -> row.getString("city")).collect(Collectors.toList());
+    }
+
+    public Boolean addRoom(String city, String hotelName, String room) {
+        BoundStatement update = new BoundStatement(updateHotelRooms);
+        update.setString("room", room);
+        update.setString("city", city);
+        update.setString("hotel_name", hotelName);
+        ResultSet rs = session.execute(update);
+        return rs.wasApplied();
     }
 }

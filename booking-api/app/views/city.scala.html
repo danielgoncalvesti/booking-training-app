@@ -79,6 +79,7 @@
                 });
                 $("#createDialog").dialog({ autoOpen: false });
                 $('#addHotel').click(function () {
+                    $("#city").val($("#cities").val());
                     $("#createDialog").dialog('open');
                 });
             });
