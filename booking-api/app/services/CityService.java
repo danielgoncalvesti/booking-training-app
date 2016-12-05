@@ -31,7 +31,7 @@ public class CityService {
                 " VALUES (:hotel_name, :city, :description, :rooms);");
         selectHotel = session.prepare(
                 "select hotel_name, city, description, rooms from hotels where city = :city and hotel_name = :hotel_name;");
-        updateHotelRooms = session.prepare("update hotels set rooms = rooms + {:room} " +
+        updateHotelRooms = session.prepare("update hotels set rooms = rooms + :room " +
                 "where city = :city and hotel_name = :hotel_name;");
         PreparedStatement selectCities = session.prepare("select distinct city from hotels");
         this.selectCities = new BoundStatement(selectCities);

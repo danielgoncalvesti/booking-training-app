@@ -11,8 +11,8 @@
 @main("Welcome to Play") {
     <script type="text/javascript">
             var hotels;
-            function fillHotels(city) {
-                $('#hotelName').empty();
+            function fillHotels(hotelsSelect, city) {
+                hotelsSelect.empty();
                 $.ajax({
                     type :  "POST",
                     dataType: 'json',
@@ -22,26 +22,28 @@
                     success: function(data) {
                         hotels = data;
                         $.each(data, function(i) {
-                            $('#hotelName').append($('<option></option>').val(data[i].name).html(data[i].name));
+                            hotelsSelect.append($('<option></option>').val(data[i].name).html(data[i].name));
                         });
-                        fillGuests();
+                        if (hotelsSelect.selector == "#hotels") {
+                            fillGuests($('#cities'),$('#hotels'),$('#guests'));
+                        }
                     }
                 });
             }
-            function fillGuests() {
-                $('#guestName').empty();
+            function fillGuests(cities, hotelsSelect, guests) {
+                guests.empty();
                 $.ajax({
                     type : "POST",
                     dataType: 'json',
                     data: JSON.stringify({
-                        "city" : $('#city').val(),
-                        "hotelName" : $('#hotelName').val()
+                        "city" : cities.val(),
+                        "hotelName" : hotelsSelect.val()
                     }),
                     contentType: "application/json; charset=utf-8",
                     url  :  "@routes.ApiController.getGuests",
                     success: function(data) {
                         $.each(data, function(i) {
-                            $('#guestName').append($('<option></option>').val(data[i]).html(data[i]));
+                            guests.append($('<option></option>').val(data[i]).html(data[i]));
                         });
                     }
                 })
@@ -60,18 +62,35 @@
                     url  :  "@routes.ApiController.getCities",
                     success: function(data){
                         $.each(data, function(i) {
+                            $('#cities').append(
+                                    $('<option></option>').val(data[i]).html(data[i])
+                            );
                             $('#city').append(
                                     $('<option></option>').val(data[i]).html(data[i])
                             );
                         });
-                        var city = $('#city');
-                        fillHotels(city.val());
+                        var city = $('#cities');
+                        fillHotels($('#hotels'), city.val());
                         city.change(function(){
-                            fillHotels($('#city').val());
-                        })
+                            fillHotels($('#hotels'), $('#cities').val());
+                        });
+                        city = $('#city');
+                        fillHotels($('#hotelName'), city.val());
+                        city.change(function(){
+                            fillHotels($('#hotelName'), $('#city').val());
+                        });
                     }
                 });
-                $('#hotelName').change(function () {fillGuests()});
+
+                $("#addGuestDialog").dialog({ autoOpen: false });
+                $('#addGuest').click(function () {
+                    $("#addGuestDialog").dialog('open');
+                });
+
+                $('#hotels').change(function () {fillGuests($('#cities'),$('#hotels'),$('#guests'))});
+                $('#cancel').click(function() {
+                    $("#addGuestDialog").dialog('close');
+                });
                 $('#save').click(function() {
                     var d = {
                         'hotelName' : $('#hotelName').val(),
@@ -88,22 +107,50 @@
                             console.log(data);
                         }
                     });
+                    $("#addGuestDialog").dialog('close');
                 });
                 $('#listGuestBookings').click(function () {
+                    var startTime = $('#startReserveTime').val();
+                    var endTime = $('#endReserveTime').val();
+                    var guestName = $('#guests').val();
+                    if (!guestName) {
+                        alert('Guest name is required');
+                        return;
+                    }
+                    if (!startTime || !endTime) {
+                        alert('Time interval is required');
+                        return;
+                    }
                     var d = {
-                        'hotelName' : $('#hotelName').val(),
-                        'city' : $('#city').val(),
-                        'startReserveTime' : $('#startReserveTime').val(),
-                        'endReserveTime' : $('#endReserveTime').val()
+                        'hotelName' : $('#hotels').val(),
+                        'city' : $('#cities').val(),
+                        'guestName' : guestName,
+                        'startReserveTime' : startTime,
+                        'endReserveTime' : endTime
                     };
                     $.ajax({
                         type :  "POST",
                         dataType: 'json',
                         data: JSON.stringify(d),
                         contentType: "application/json; charset=utf-8",
-                        url  :  "@routes.ApiController.freeRooms",
+                        url  :  "@routes.ApiController.roomByGuest()",
                         success: function(data){
-                            console.log(data);
+                            var dataTable = $('#dataTable');
+                            dataTable.empty();
+                            var dataTableContent = dataTable.append(
+                                    "<table width='100%'>" +
+                                    "  <tr><td><b>Guest</b></td><td><b>Room</b></td><td><b>Date</b></td></tr>" +
+                                    "</table>");
+                            for (var i in  data) {
+                                var row = data[i];
+                                dataTableContent.find('tbody')
+                                        .append($('<tr>')
+                                                .append(
+                                                        "<td>" + row.guestName + "</td>" +
+                                                        "<td>" + row.room + "</td>" +
+                                                        "<td>" + row.bookingDay + "</td>"
+                                                ));
+                            }
                         }
                     });
                 });
@@ -112,21 +159,43 @@
 } {
     <a href="@routes.HomeController.index()"><- Back</a>
     <h1>Guest Operations</h1>
-    <form>
-        <table>
-            <tr>
-                <td><label for="hotelName">Hotel Name</label></td><td><select name="hotelName" id="hotelName"></select></td>
-                <td><input type="button" name="listGuestBookings" id="listGuestBookings" value="List Guest Bookings"/></td>
-                <td rowspan="5" id="dataTable"></td>
-            </tr>
-            <tr>
-                <td><label for="city">City</label></td><td><select id="city"></select></td>
-            </tr>
-            <tr>
-                <td><label for="guestName">guestName</label></td><td><select name="guestName" id="guestName"></select></td>
-            </tr>
-        </table>
-        <input type="button" name="save" id="save" value="Save"/>
-    </form>
-
+    <table width="100%">
+        <tr>
+            <td colspan="6"><input type="button" id="addGuest" name="addGuest" value="Add Guest"/><br/></td>
+        </tr>
+        <tr>
+            <td><label for="cities">City</label></td><td><select id="cities"></select></td>
+            <td><label for="hotels">
+                Hotel Name</label></td><td><select name="hotels" id="hotels"></select></td>
+            <td><label for="guests">
+                Guest</label></td><td><select name="guests" id="guests"></select></td>
+            <td><label for="startReserveTime">
+                startReserveTime</label></td><td><input type="text" id="startReserveTime"/></td>
+            <td><label for="endReserveTime">
+                endReserveTime</label></td><td><input type="text" id="endReserveTime"/></td>
+            <td><input type="button" name="listGuestBookings" id="listGuestBookings" value="List Guest Bookings"/></td>
+        </tr>
+        <tr>
+            <td id="dataTable" rowspan="6"></td>
+        </tr>
+    </table>
+    <div id="addGuestDialog" style="display:none ;">
+        <form>
+            <table>
+                <tr>
+                    <td><label for="city">City</label></td><td><select id="city"></select></td>
+                </tr>
+                <tr>
+                    <td><label for="hotelName">
+                        Hotel Name</label></td><td><select name="hotelName" id="hotelName"></select></td>
+                </tr>
+                <tr>
+                    <td><label for="guestName">
+                        guestName</label></td><td><input name="guestName" id="guestName"></td>
+                </tr>
+            </table>
+            <input type="button" name="save" id="save" value="Save"/>
+            <input type="button" name="cancel" id="cancel" value="Cancel"/>
+        </form>
+    </div>
 }

@@ -102,9 +102,14 @@
                         contentType: "application/json; charset=utf-8",
                         url  :  "@routes.ApiController.addBooking()",
                         success: function(data){
+                            alert('Result: ' + data);
                             console.log(data);
                         }
                     });
+                });
+                $("#freeRoomsDialog").dialog({ autoOpen: false });
+                $('#ok').click(function () {
+                    $('#freeRoomsDialog').dialog('close');
                 });
                 $('#listFreeRooms').click(function () {
                     var d = {
@@ -120,7 +125,8 @@
                         contentType: "application/json; charset=utf-8",
                         url  :  "@routes.ApiController.freeRooms",
                         success: function(data){
-                            console.log(data);
+                            $('#freeRoomsValue').text(data.join());
+                            $("#freeRoomsDialog").dialog('open');
                         }
                     });
                 });
@@ -133,8 +139,6 @@
         <table>
             <tr>
                 <td><label for="hotelName">Hotel Name</label></td><td><select id="hotelName"></select></td>
-                <td><input type="button" name="listFreeRooms" id="listFreeRooms" value="List Free Rooms"/></td>
-                <td rowspan="5" id="dataTable"></td>
             </tr>
             <tr>
                 <td><label for="city">City</label></td><td><select id="city"></select></td>
@@ -154,7 +158,11 @@
                 <td><label for="guestName">guestName</label></td><td><select id="guestName" name="guestName"></select></td>
             </tr>
         </table>
-        <input type="button" name="save" id="save" value="Save"/>
+        <input type="button" name="save" id="save" value="Save Booking"/>
+        <input type="button" name="listFreeRooms" id="listFreeRooms" value="List Free Rooms"/>
     </form>
-
+    <div id="freeRoomsDialog">
+        Free Rooms: <span id="freeRoomsValue"></span><br/>
+        <input type="button" id="ok" value="Ok"/>
+    </div>
 }
